@@ -26,6 +26,7 @@ async function run() {
     await client.connect();
 
     const serviceCollection = client.db("carDoctor").collection("services");
+    const orderCollection = client.db("carDoctor").collection("orders");
 
     app.get("/services", async (req, res) => {
       const cursor = serviceCollection.find();
@@ -39,10 +40,47 @@ async function run() {
 
       const options = {
         // Include only the `title` and `imdb` fields in the returned document
-        projection: { title: 1, price: 1, service_id: 1 },
+        projection: { title: 1, price: 1, service_id: 1, img: 1 },
       };
 
       const result = await serviceCollection.findOne(query, options);
+      res.send(result);
+    });
+
+    // Orders
+    app.get("/orders", async (req, res) => {
+      let query = {};
+      if (req.query?.email) {
+        query = { email: req.query.email };
+      }
+      // console.log(query);
+      const result = await orderCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    app.post("/orders", async (req, res) => {
+      const order = req.body;
+      const result = await orderCollection.insertOne(order);
+      res.send(result);
+    });
+
+    app.patch("/orders/:id", async (req, res) => {
+      const id = req.params.id;
+      const booking = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const updateBooking = {
+        $set: {
+          status: booking.status,
+        },
+      };
+      const result = await orderCollection.updateOne(filter, updateBooking);
+      res.send(result);
+    });
+
+    app.delete("/orders/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await orderCollection.deleteOne(query);
       res.send(result);
     });
 

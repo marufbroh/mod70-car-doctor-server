@@ -22,7 +22,7 @@ const client = new MongoClient(uri, {
 });
 
 const verifyJWT = (req, res, next) => {
-  console.log(req.headers.authorization);
+  // console.log(req.headers.authorization);
   const authorization = req.headers.authorization;
   if (!authorization) {
     return res
@@ -82,7 +82,7 @@ async function run() {
     // Orders routes
     app.get("/orders", verifyJWT, async (req, res) => {
       const decoded = req.decoded;
-      console.log("comeback after decodec", decoded);
+      // console.log("comeback after decodec", decoded);
       if (decoded.email !== req.query.email) {
         return res.status(403).send({ error: 1, message: "forbidden access" });
       }
